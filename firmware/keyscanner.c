@@ -49,32 +49,25 @@ void keyscanner_main(void) {
         return;
     }
 
+    do_scan = 0;
+
     // For each enabled row...
     for (uint8_t row = 0; row < ROW_COUNT; ++row) {
         // Reset all of our row pins, then
         // set the one we want to read as low
         LOW(PORT_ROWS, row);
-        /* We need a no-op for synchronization. So says the datasheet
-         * in Section 10.2.5 */
+        /* We need a no-op for to allow time for the register state to change.
+         * So says the ATTiny88 datasheet in Section 10.2.5 */
         asm("nop");
         pin_data = PIN_COLS;
         HIGH(PORT_ROWS,row);
-        // Debounce key state
+        // Debounce key state - check debounce.h to see how it works
         debounced_changes += debounce((pin_data) , db + row);
     }
 
     // Most of the time there will be no new key events
-    if (__builtin_expect(debounced_changes == 0, 1)) {
-        // Only run the debouncing delay when we haven't successfully found
-        // a debounced event
-
-        // XXX TODO make sure this isn't crazy. could this 
-        // cause us to do reads too fast and mis-debounce
-        // some secondary key while we successfully debounce a
-        // first key.
-        do_scan = 0;
+    if (__builtin_expect(debounced_changes == 0, 1)) 
         return;
-    }
 
     // Snapshot the keystate to add to the ring buffer
     // Run this with interrupts off to make sure that
