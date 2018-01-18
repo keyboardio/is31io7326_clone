@@ -57,8 +57,8 @@ static inline uint8_t debounce(uint8_t sample, debounce_t *debouncer) {
 
     // Calculate returned change set: if delta is still true
     // and the counter has wrapped back to 0, the key is changed.
+    changes = delta & ~debouncer->db0 & ~debouncer->db1;
 
-    changes = ~(~delta | (debouncer->db0) | (debouncer->db1));
     // Update state: in this case use xor to flip any bit that is true in changes.
     debouncer->state ^= changes;
 
