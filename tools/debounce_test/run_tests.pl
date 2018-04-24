@@ -50,17 +50,17 @@ for my $test (@testcases) {
 			$sample_rate = 625; # 1.6ms per sample
 		}
 		chomp($title);
-		my ($count,$debug) = run_debouncer ($debouncer, $test, $sample_rate, 'c');
+		my ($count_presses,$count_releases,$debug) = run_debouncer ($debouncer, $test, $sample_rate, 'c');
 
-		$press_counts_by_test{$test}{$debouncer} = $count;
+		$press_counts_by_test{$test}{$debouncer} = $count_presses;
 		$press_counts_by_test{$test}{'SPEC'} = $presses;
 
-		if ($count == $presses) {
+		if ($count_presses == $presses and $count_releases == $presses) {
 			$stats_by_db{$debouncer}{ok}++;
 			print "ok ". $test_num++. "		- $debouncer $test saw $presses presses\n";
 		} else {
 			$stats_by_db{$debouncer}{not_ok}++;
-			print "not ok ". $test_num++ ." - $debouncer $test saw $count presses but expected $presses\n";
+			print "not ok ". $test_num++ ." - $debouncer $test saw $count_presses presses and $count_releases releases but expected $presses\n";
 			push @{$fails_by_test{$test}},$debouncer;
 			push @{$fails_by_db{$debouncer}},$test;
 		}
@@ -140,13 +140,15 @@ sub run_debouncer {
 		print CHLD_IN $line;
 	}
 	close(CHLD_IN);
-	my $result =<CHLD_OUT>;
-	chomp($result);
+	my $presses =<CHLD_OUT>;
+	chomp($presses);
+	my $releases =<CHLD_OUT>;
+	chomp($releases);
 	while (my $line =<CHLD_OUT>) {
 		$stderr .= $line;
 	}
 
-	return $result, $stderr;
+	return $presses, $releases, $stderr;
 }
 
 
@@ -231,6 +233,8 @@ sub resample {
 		}
 
 	}
+
+	push @output, "0"x200; # pad with 0s to make sure debouncer releases
 
 	close(FILE);
 	return @output;

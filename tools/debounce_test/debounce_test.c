@@ -189,6 +189,7 @@ int main(int argc,char *argv[]) {
 
     if (print_press_count) {
         printf("%d\n",presses);
+        printf("%d\n",releases);
     }
     if (verbose) {
         printf("# Total presses: %d Total releases: %d\n",presses,releases);
