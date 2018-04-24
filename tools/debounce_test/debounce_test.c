@@ -69,8 +69,8 @@ int main(int argc,char *argv[]) {
     if(argc ==2 && *argv[1] == 'v')  {
         verbose = 1;
     } else if(argc ==2 && *argv[1] == 'd')  { // debug - extra verbosity, show every sample transition
-	    verbose =1;
-	    extra_verbose=1;
+        verbose =1;
+        extra_verbose=1;
     } else if(argc ==2 && *argv[1] == 'i')  {
         print_input = 1;
     } else if (argc ==2 && *argv[1] =='c') {
@@ -98,57 +98,57 @@ int main(int argc,char *argv[]) {
 
     for (uint16_t sample = 0; sample < scan_counter; sample++) {
 
-	uint8_t data_printed = 0;
+        uint8_t data_printed = 0;
         debounced_changes= debounce(pin_data[sample], db);
 
         if (verbose) {
             if (comments[sample][0] != 0) {
                 printf("# %s", comments[sample]);
             }
-	}
+        }
         if (extra_verbose) {
             printf("Sample %-3d Input: %d ",sample,pin_data[sample]);
             printf("State: %d", (db[0].state ));
-	data_printed++;
+            data_printed++;
         }
-            if (pin_data[sample] != pin_data[sample-1]) {
-                if (verbose) {
-			printf(" - input changed to %d after %d cycles", pin_data[sample], sample-last_input_change);
-	data_printed++;
-		};
-                last_input_change = sample;
-            }
+        if (pin_data[sample] != pin_data[sample-1]) {
+            if (verbose) {
+                printf(" - input changed to %d after %d cycles", pin_data[sample], sample-last_input_change);
+                data_printed++;
+            };
+            last_input_change = sample;
+        }
 
 
 
         if (debounced_changes) {
-		uint16_t latency = sample - last_input_change;
-		uint16_t last_duration = sample - last_state_change;
+            uint16_t latency = sample - last_input_change;
+            uint16_t last_duration = sample - last_state_change;
             if (!(db[0].state )) {
-               
-	       
+
+
                 press_duration[presses] =last_duration;
                 release_latency_counts[releases] = latency;
-		releases++;
+                releases++;
                 if (verbose) {
                     printf(" - release %d ",releases);
-	data_printed++;
+                    data_printed++;
                 }
             } else {
-                
+
                 release_duration[releases] = last_duration;
-		presses++;
+                presses++;
                 press_latency_counts[presses] = latency;
                 if (verbose) {
                     printf(" - press %d ", presses);
-	data_printed++;
+                    data_printed++;
                 }
             }
 
             if (verbose) {
-                printf(" - state changed to %d with a latency of %d cycles (old state lasted %d cycles)", 
-				db[0].state, latency, last_duration);
-	data_printed++;
+                printf(" - state changed to %d with a latency of %d cycles (old state lasted %d cycles)",
+                       db[0].state, latency, last_duration);
+                data_printed++;
             }
 
             last_state_change = sample;
@@ -160,7 +160,7 @@ int main(int argc,char *argv[]) {
             printf("\n");
     }
 
-    release_latency_counts[0]=0; // This is a hack 
+    release_latency_counts[0]=0; // This is a hack
 
     if (verbose || print_input) {
         printf("Raw input data: (40 ms per line)\n");
@@ -189,6 +189,7 @@ int main(int argc,char *argv[]) {
 
     if (print_press_count) {
         printf("%d\n",presses);
+        printf("%d\n",releases);
     }
     if (verbose) {
         printf("# Total presses: %d Total releases: %d\n",presses,releases);
@@ -222,7 +223,7 @@ int main(int argc,char *argv[]) {
 
 
 
-	printf("# Release latency:");
+        printf("# Release latency:");
         for(uint8_t i = 0; (i<=releases); i++) {
             printf(" %4d",release_latency_counts[i] );
         }
@@ -243,4 +244,3 @@ int main(int argc,char *argv[]) {
 
     exit (0);
 }
-
