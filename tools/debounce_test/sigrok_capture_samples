@@ -2,7 +2,20 @@
 
 KEYBOARD=$1
 KEY=$2
+LA=${3:-"saleae"}
+
 BASE_FILENAME="testcases/$KEYBOARD/key-$KEY-"
+
+if [ "$LA" == "saleae" ]; then
+    SIGROK_CONFIG="samplerate=16M"
+    SIGROK_DRIVER="saleae-logic16"
+    SIGROK_CHANNELS="14,15"
+elif [ "$LA" == "dslogic" ]; then
+    SIGROK_CONFIG="samplerate=20M:voltage_threshold=1.8-1.8:continuous=on"
+    SIGROK_DRIVER="dreamsourcelab-dslogic"
+    SIGROK_CHANNELS="0,2"
+fi
+echo "using $LA logic analyser"
 
 mkdir -p "testcases/$KEYBOARD"
 
@@ -31,7 +44,8 @@ do
 		fi
 		echo "Ready to capture $FILE"
 		read 
-		sigrok-cli --config samplerate="16M" --driver=saleae-logic16 --samples=${capture_time}M -C 14,15 -O csv -T invert |cut -d , -f 2,3 > $RAWFILE
+		echo sigrok-cli --config=$SIGROK_CONFIG --driver=$SIGROK_DRIVER --samples=${capture_time}M -C $SIGROK_CHANNELS -O csv -T invert 
+		sigrok-cli --config=$SIGROK_CONFIG --driver=$SIGROK_DRIVER --samples=${capture_time}M -C $SIGROK_CHANNELS -O csv -T invert |cut -d , -f 2,3 > $RAWFILE
 		
 		echo "#SAMPLES-PER-SECOND: 2000" >> $OUTFILE
 		echo "#TITLE: $FILE" >> $OUTFILE
