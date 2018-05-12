@@ -35,7 +35,7 @@ void setup() {
     );
 
     debug_printf("Setup\n");
-    delay(5000);
+    delay(2000);
     debug_printf("Init twi\n");
     twi_init();
 }
@@ -270,7 +270,7 @@ int left_written = 0;
 int right_written = 0;
 
 void loop() {
-    delay(5000);
+    delay(2000);
 
     if (left_written > 0) {
         debug_printf("Done with left side.\n");
