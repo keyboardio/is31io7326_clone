@@ -110,6 +110,10 @@ void led_set_one_to(uint8_t led, uint8_t *buf) {
 
 }
 
+uint8_t *led_get_one_addr_unsafe(uint8_t led) {
+    return (uint8_t *)led_buffer.each[led];
+}
+
 void led_set_global_brightness(uint8_t brightness) {
     // Legal brightness inputs are 0 to 31.
     // But the output we want has the 3 high bytes set anyway
