@@ -7,6 +7,8 @@
 #include "ringbuf.h"
 #include "keyscanner.h"
 
+#include "led-spiout.h"
+
 debounce_t db[COUNT_OUTPUT];
 
 // do_scan_counter gets set any time we should actually do a scan
@@ -42,6 +44,42 @@ void keyscanner_main(void) {
         return;
     }
     do_scan_counter = 0;
+
+    // DEBUG performance alert
+    // lits a key led if keyscanner_main missed a scan
+    // (probably due to something taking too long)
+    // (will interfere with any other LED animation running)
+//#define DEBUG_PERFORMANCE_ALERT_WITH_LED
+
+#ifdef DEBUG_PERFORMANCE_ALERT_WITH_LED
+    // adds ~20 instructions (avr-objdump -d main.elf | wc -l)
+    if (last_scan_counter > 1)
+    {
+        // @FIXME: this is the left-hand, right-hand key_led_map is slightly different
+        static const uint8_t key_led_map[4][16] = {
+            {3, 4, 11, 12, 19, 20, 26, 27},
+            {2, 5, 10, 13, 18, 21, 25, 28},
+            {1, 6, 9, 14, 17, 22, 24, 29},
+            {0, 7, 8, 15, 16, 23, 31, 30},
+        };
+
+        uint8_t     row = 1;
+        uint8_t     col = 1;
+
+        uint8_t     k = key_led_map[row][col];
+        uint8_t     *bgr = led_get_one_addr_unsafe(k);
+
+        bgr[0] = 0;
+        bgr[1] = 0;
+        bgr[2] = 0;
+        if (last_scan_counter == 2)
+            bgr[0] = 255; // blue
+        else if (last_scan_counter == 3)
+            bgr[1] = 255; // green
+        else
+            bgr[2] = 255; // red
+    }
+#endif
 
     // For each enabled row...
     for (uint8_t output_pin = 0; output_pin < COUNT_OUTPUT; ++output_pin) {
