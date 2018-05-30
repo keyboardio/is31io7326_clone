@@ -46,13 +46,11 @@ void keyscanner_main(void) {
     do_scan_counter = 0;
 
     // DEBUG performance alert
-    // lits a key led if keyscanner_main missed a scan
-    // (probably due to something taking too long)
-    // (will interfere with any other LED animation running)
+    // Lits up the red component of a key if keyscanner_main missed a scan.
+    // Stays red until something else updates the led color.
 //#define DEBUG_PERFORMANCE_ALERT_WITH_LED
 
 #ifdef DEBUG_PERFORMANCE_ALERT_WITH_LED
-    // adds ~20 instructions (avr-objdump -d main.elf | wc -l)
     if (last_scan_counter > 1)
     {
         // @FIXME: this is the left-hand, right-hand key_led_map is slightly different
@@ -62,22 +60,14 @@ void keyscanner_main(void) {
             {1, 6, 9, 14, 17, 22, 24, 29},
             {0, 7, 8, 15, 16, 23, 31, 30},
         };
-
         uint8_t     row = 1;
         uint8_t     col = 1;
-
+        // Adds only ~4 instructions (avr-objdump -d main.elf | wc -l).
+        // But much more code than can actually significantly bias performance
+        // measurement
         uint8_t     k = key_led_map[row][col];
         uint8_t     *bgr = led_get_one_addr_unsafe(k);
-
-        bgr[0] = 0;
-        bgr[1] = 0;
-        bgr[2] = 0;
-        if (last_scan_counter == 2)
-            bgr[0] = 255; // blue
-        else if (last_scan_counter == 3)
-            bgr[1] = 255; // green
-        else
-            bgr[2] = 255; // red
+        bgr[2] = 255;
     }
 #endif
 
