@@ -68,6 +68,7 @@ void keyscanner_main(void) {
         uint8_t     k = key_led_map[row][col];
         uint8_t     *bgr = led_get_one_addr_unsafe(k);
         bgr[2] = 255;
+        led_data_ready();
     }
 #endif
 

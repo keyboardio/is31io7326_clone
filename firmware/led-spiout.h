@@ -12,6 +12,7 @@
 
 
 
+void led_data_ready();
 
 /* Call to begin transmitting LED data */
 void led_init(void);
