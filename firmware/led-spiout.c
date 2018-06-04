@@ -37,6 +37,13 @@
 #define ENABLE_LED_WRITES SPCR |= _BV(SPIE);
 #define DISABLE_LED_WRITES SPCR &= ~_BV(SPIE);
 
+// Using DISABLE_INTERRUPTS could cause interrupt recursion because led_update
+// functions are called from TWI callbacks which run within TWI interrupt. So
+// disable only LED SPI transfer interrupt.
+//
+// And to avoid redundancy, leave re-ENABLE_LED_WRITES to led_data_ready().
+#define PROTECT_LED_WRITES(...)  do { DISABLE_LED_WRITES; __VA_ARGS__ /*ENABLE_LED_WRITES;*/ } while (0)
+
 static uint8_t led_spi_frequency = LED_SPI_FREQUENCY_DEFAULT;
 
 typedef union {
@@ -88,7 +95,7 @@ void led_update_bank(uint8_t *buf, const uint8_t bank) {
        buffer 32 LEDs! And double buffering is simpler, less likely to
        flicker. */
 
-    DISABLE_INTERRUPTS({
+    PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.bank[bank], buf, LED_BANK_SIZE);
     });
     // Only do our update if we're updating bank 4
@@ -105,7 +112,7 @@ void led_update_bank(uint8_t *buf, const uint8_t bank) {
  * */
 
 void led_update_all(uint8_t *buf) {
-    DISABLE_INTERRUPTS({
+    PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.whole, buf, LED_BUFSZ);
     });
     led_data_ready();
@@ -113,7 +120,7 @@ void led_update_all(uint8_t *buf) {
 
 
 void led_set_one_to(uint8_t led, uint8_t *buf) {
-    DISABLE_INTERRUPTS({
+    PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.each[led], buf, LED_DATA_SIZE);
     });
     led_data_ready();
@@ -131,7 +138,7 @@ void led_set_global_brightness(uint8_t brightness) {
 }
 
 void led_set_all_to( uint8_t *buf) {
-    DISABLE_INTERRUPTS({
+    PROTECT_LED_WRITES({
         for(int8_t led=31; led>=0; led--) {
             memcpy((uint8_t *)led_buffer.each[led], buf, LED_DATA_SIZE);
         }
