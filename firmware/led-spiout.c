@@ -185,6 +185,34 @@ void led_set_spi_frequency(uint8_t frequency) {
     }
 }
 
+/* Sets all leds off, without using the interrupt */
+static void _led_all_off_no_interrupt() {
+    /* make sure we disabled the interrupt ! */
+    DISABLE_LED_WRITES;
+
+#define WAIT_SPI_TRANSMIT()     do { while (!(SPSR & _BV(SPIF))) ; } while (0)
+    SPDR = 0;
+    for (uint8_t i = 0; i < LED_START_FRAME_BYTES - 1; ++i) {
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0;
+    }
+    for (uint8_t i = 0; i < NUM_LEDS; ++i) {
+        WAIT_SPI_TRANSMIT();
+        SPDR = BRIGHTNESS_MASK | 0;
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0;
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0;
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0;
+    }
+    for (uint8_t i = 0; i < LED_END_FRAME_BYTES; ++i) {
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0;
+    }
+    WAIT_SPI_TRANSMIT();
+#undef WAIT_SPI_TRANSMIT
+}
 
 void led_init() {
 
@@ -192,7 +220,18 @@ void led_init() {
     DDRB = _BV(5)|_BV(3)|_BV(2);
     PORTB &= ~(_BV(5)|_BV(3)|_BV(2));
 
-    led_set_spi_frequency(led_spi_frequency);
+    /* Set all leds off as fast as possible.
+     *
+     * We don't use the SPI transfer interrupt here so we can synchronously turn
+     * off all leds now, then synchronously change SPI frequency without
+     * interference.
+     */
+    led_set_spi_frequency(LED_SPI_FREQUENCY_AT_INIT);
+    _led_all_off_no_interrupt();
+
+    /* Set the default led SPI frequency */
+    if (led_spi_frequency != LED_SPI_FREQUENCY_DEFAULT)
+        led_set_spi_frequency(LED_SPI_FREQUENCY_DEFAULT);
 
     /* Trigger a first transmission */
     leds_dirty = 1;
@@ -200,7 +239,7 @@ void led_init() {
     // Launch the very first transfer so SPI_STC_vect is called after that
     // (We could also manually set SPIF)
     // (An additional 8 zero bits start frame should not matter)
-    SPDR = 0x00;
+    // SPDR = 0x00; // ! BUT don't do that since _led_all_off_no_interrupt() does it
 }
 
 typedef enum {
