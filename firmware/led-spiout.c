@@ -63,30 +63,17 @@ static volatile enum {
 
 static uint8_t global_brightness = BRIGHTNESS_MASK | 31; /* max is 31 */
 
+/* (No volatile because no data race and we do only atomic operations (assignment should be atomic)) */
+static uint8_t leds_dirty = 1;
+
 static volatile uint8_t index; /* next byte to transmit */
 static volatile uint8_t subpixel = 0;
-static volatile uint8_t leds_dirty = 1;
 
-
+/* This function triggers a led update. */
 void led_data_ready() {
-    if(leds_dirty <2) {
-        leds_dirty++;
-    }
+    leds_dirty = 1;
     ENABLE_LED_WRITES;
 }
-
-/* this function updates our led data state. We use this to
- * make sure that we update the LEDs  if there's any data that hasn't yet been
- * sent. Because there's a potential race condition in the LED update state
- * machine that could result in a skipped LED update if the LED buffer was
- * updated during the 'start' frame, we let the dirty state variable
- * go to 2.
- *
- * This means that there's a slight chance we'll update all the LEDs twice
- * if we receive an update during the start frame, but that's better than
- * missing a frame.
- */
-
 
 /* Update the transmit buffer with LED_BUFSZ bytes of new data */
 void led_update_bank(uint8_t *buf, const uint8_t bank) {
@@ -240,9 +227,7 @@ ISR(SPI_STC_vect) {
         if(++index == LED_START_FRAME_BYTES) {
             led_phase = DATA;
             index = 0;
-            if (leds_dirty > 0) {
-                leds_dirty--;
-            }
+            leds_dirty = 0;
         }
         break;
     case DATA:
@@ -265,7 +250,12 @@ ISR(SPI_STC_vect) {
         if(++index == LED_END_FRAME_BYTES) {
             led_phase = START_FRAME;
             index = 0;
-            if (leds_dirty ==0) {
+            if (leds_dirty == 0) {
+                // There should be no `leds_dirty` race condition here because
+                // we are not multi-threaded: `led_data_ready` should never be
+                // able to run here, ISR() (not naked) disables the global
+                // interrupt flag for the time of the call, and we are using
+                // PROTECT_LED_WRITES and not DISABLE_INTERRUPTS.
                 DISABLE_LED_WRITES;
             }
         }
