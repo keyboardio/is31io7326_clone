@@ -8,10 +8,6 @@
 #define DEVICE_VERSION 3
 
 
-
-
-extern uint8_t led_spi_frequency;
-
 // Default about 0.47ms between reads.
 // This lets us do two scans per ms, which -might- let us send updates every ms.
 #define KEYSCAN_INTERVAL_DEFAULT 14

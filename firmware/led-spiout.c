@@ -21,8 +21,12 @@
  * shouldn't matter.
  */
 
+#define BRIGHTNESS_MASK 0b11100000
 
-uint8_t led_spi_frequency = LED_SPI_FREQUENCY_DEFAULT;
+#define ENABLE_LED_WRITES SPCR |= _BV(SPIE);
+#define DISABLE_LED_WRITES SPCR &= ~_BV(SPIE);
+
+static uint8_t led_spi_frequency = LED_SPI_FREQUENCY_DEFAULT;
 
 typedef union {
     uint8_t each[NUM_LEDS][LED_DATA_SIZE];
@@ -38,12 +42,7 @@ static volatile enum {
     END_FRAME
 } led_phase;
 
-#define BRIGHTNESS_MASK	0b11100000
-
-#define ENABLE_LED_WRITES SPCR |= _BV(SPIE);
-#define DISABLE_LED_WRITES   SPCR &= ~_BV(SPIE);
-
-static volatile uint8_t global_brightness = 0xFF;
+static volatile uint8_t global_brightness = BRIGHTNESS_MASK | 31; /* max is 31 */
 
 static volatile uint8_t index; /* next byte to transmit */
 static volatile uint8_t subpixel = 0;
@@ -135,9 +134,10 @@ void led_set_all_off (void) {
     led_data_ready();
 }
 
-inline uint8_t led_get_spi_frequency() {
+uint8_t led_get_spi_frequency() {
     return led_spi_frequency;
 }
+
 void led_set_spi_frequency(uint8_t frequency) {
     led_spi_frequency = frequency;
 
