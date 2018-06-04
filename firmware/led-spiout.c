@@ -53,21 +53,12 @@ typedef union {
 } led_buffer_t;
 
 /* (No volatile because all writes are outside the interrupt and in PROTECT_LED_WRITES) */
-static led_buffer_t led_buffer;
-
-static volatile enum {
-    START_FRAME,
-    DATA,
-    END_FRAME
-} led_phase;
+static led_buffer_t led_buffer = {.whole={0}};
 
 static uint8_t global_brightness = BRIGHTNESS_MASK | 31; /* max is 31 */
 
 /* (No volatile because no data race and we do only atomic operations (assignment should be atomic)) */
 static uint8_t leds_dirty = 1;
-
-static volatile uint8_t index; /* next byte to transmit */
-static volatile uint8_t subpixel = 0;
 
 /* This function triggers a led update. */
 void led_data_ready() {
@@ -135,11 +126,6 @@ void led_set_all_to( uint8_t *buf) {
 
 }
 
-void led_set_all_off (void) {
-    memset((uint8_t*)led_buffer.whole, 0, sizeof(led_buffer.whole));
-    led_data_ready();
-}
-
 uint8_t led_get_spi_frequency() {
     return led_spi_frequency;
 }
@@ -154,8 +140,9 @@ void led_set_spi_frequency(uint8_t frequency) {
 
 
     // This is the default SPI "on" incant
+    // But without the interrupt (SPIE) (enabled later with ENABLE_LED_WRITES)
 
-    SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPIE);
+    SPCR = _BV(SPE) | _BV(MSTR);
 
     // Which speeds are "double speed"
     switch(frequency) {
@@ -201,22 +188,31 @@ void led_set_spi_frequency(uint8_t frequency) {
 
 void led_init() {
 
-    // Make sure all our LEDs start off dark
-    led_set_all_off();
-
     /* Set MOSI, SCK, SS all to outputs */
     DDRB = _BV(5)|_BV(3)|_BV(2);
     PORTB &= ~(_BV(5)|_BV(3)|_BV(2));
 
     led_set_spi_frequency(led_spi_frequency);
 
-    /* Start transmitting the first byte of the start frame */
-    led_phase = START_FRAME;
+    /* Trigger a first transmission */
     leds_dirty = 1;
-    SPDR = 0x0;
-    index = 1;
-    subpixel = 0;
+    ENABLE_LED_WRITES;
+    // Launch the very first transfer so SPI_STC_vect is called after that
+    // (We could also manually set SPIF)
+    // (An additional 8 zero bits start frame should not matter)
+    SPDR = 0x00;
 }
+
+typedef enum {
+    START_FRAME,
+    DATA,
+    END_FRAME
+} led_phase_t;
+
+/* (No volatile because never touch outside of the interrupt) */
+static led_phase_t led_phase = START_FRAME;
+static uint8_t index = 0; /* next byte to transmit */
+static uint8_t subpixel = 0;
 
 /* Each time a byte finishes transmitting, queue the next one */
 ISR(SPI_STC_vect) {
