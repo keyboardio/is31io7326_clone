@@ -52,7 +52,8 @@ typedef union {
     uint8_t bank[NUM_LED_BANKS][LED_BANK_SIZE];
 } led_buffer_t;
 
-static volatile led_buffer_t led_buffer;
+/* (No volatile because all writes are outside the interrupt and in PROTECT_LED_WRITES) */
+static led_buffer_t led_buffer;
 
 static volatile enum {
     START_FRAME,
@@ -60,7 +61,7 @@ static volatile enum {
     END_FRAME
 } led_phase;
 
-static volatile uint8_t global_brightness = BRIGHTNESS_MASK | 31; /* max is 31 */
+static uint8_t global_brightness = BRIGHTNESS_MASK | 31; /* max is 31 */
 
 static volatile uint8_t index; /* next byte to transmit */
 static volatile uint8_t subpixel = 0;
