@@ -205,14 +205,16 @@ void led_init() {
 
 typedef enum {
     START_FRAME,
-    DATA,
+    DATA_0,
+    DATA_1,
+    DATA_2,
+    DATA_3,
     END_FRAME
 } led_phase_t;
 
 /* (No volatile because never touch outside of the interrupt) */
 static led_phase_t led_phase = START_FRAME;
-static uint8_t index = 0; /* next byte to transmit */
-static uint8_t subpixel = 0;
+static uint8_t index = 0;
 
 /* Each time a byte finishes transmitting, queue the next one */
 ISR(SPI_STC_vect) {
@@ -220,30 +222,44 @@ ISR(SPI_STC_vect) {
     switch(led_phase) {
     case START_FRAME:
         SPDR = 0;
-        if(++index == LED_START_FRAME_BYTES) {
-            led_phase = DATA;
+        ++index;
+        if(index == LED_START_FRAME_BYTES) {
+            led_phase = DATA_0;
             index = 0;
             leds_dirty = 0;
         }
         break;
-    case DATA:
-        if (++subpixel == 1) {
-            SPDR = global_brightness;
-        } else {
-            SPDR = led_buffer.whole[index++];
-            subpixel %= 4; // reset the subpixel once it goes past brightness,r,g,b
-        }
 
-        if (index == LED_BUFSZ) {
-            led_phase = END_FRAME;
+    case DATA_0:
+        SPDR = global_brightness;
+        ++led_phase;
+        break;
+
+    case DATA_1:
+        SPDR = led_buffer.whole[index + 0];
+        ++led_phase;
+        break;
+
+    case DATA_2:
+        SPDR = led_buffer.whole[index + 1];
+        ++led_phase;
+        break;
+
+    case DATA_3:
+        SPDR = led_buffer.whole[index + 2];
+        index += 3;
+        if (index < LED_BUFSZ) {
+            led_phase = DATA_0;
+        } else {
             index = 0;
-            subpixel = 0;
+            led_phase = END_FRAME;
         }
         break;
 
     case END_FRAME:
         SPDR = 0x00;
-        if(++index == LED_END_FRAME_BYTES) {
+        ++index;
+        if(index == LED_END_FRAME_BYTES) {
             led_phase = START_FRAME;
             index = 0;
             if (leds_dirty == 0) {
