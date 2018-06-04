@@ -23,6 +23,17 @@
 
 #define BRIGHTNESS_MASK 0b11100000
 
+// LED SPI start frame: 32 zero bits
+#define LED_START_FRAME_BYTES 4
+
+// LED SPI end frame: 32 zero bits + (NUM_LEDS / 2) bits
+// The pwm end frame needs to be 32 bits of 0 for SK9822 based LEDS
+// After that, we need at num_leds/2 more bits of 0
+// For up to 64 LEDs, that means 64 bits of 0
+// https://cpldcpu.wordpress.com/2016/12/13/sk9822-a-clone-of-the-apa102/
+// https://cpldcpu.wordpress.com/2014/11/30/understanding-the-apa102-superled/
+#define LED_END_FRAME_BYTES (4 + (NUM_LEDS / 2 / 8))
+
 #define ENABLE_LED_WRITES SPCR |= _BV(SPIE);
 #define DISABLE_LED_WRITES SPCR &= ~_BV(SPIE);
 
@@ -218,7 +229,7 @@ ISR(SPI_STC_vect) {
     switch(led_phase) {
     case START_FRAME:
         SPDR = 0;
-        if(++index == 8) {
+        if(++index == LED_START_FRAME_BYTES) {
             led_phase = DATA;
             index = 0;
             if (leds_dirty > 0) {
@@ -242,11 +253,8 @@ ISR(SPI_STC_vect) {
         break;
 
     case END_FRAME:
-        // The pwm reset frame needs to be 32 bits of 0 for SK9822 based LEDS
-        // After that, we need at num_leds/2 more bits of 0
-        // For up to 64 LEDs, that means 64 bits of 0
         SPDR = 0x00;
-        if(++index == 8) { /* NB: increase this number if ever >64 LEDs */
+        if(++index == LED_END_FRAME_BYTES) {
             led_phase = START_FRAME;
             index = 0;
             if (leds_dirty ==0) {
