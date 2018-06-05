@@ -251,8 +251,11 @@ typedef enum {
     END_FRAME
 } led_phase_t;
 
-/* (No volatile because never touch outside of the interrupt) */
-static led_phase_t led_phase = START_FRAME;
+/* (No volatile because never touch outside of the interrupt)
+ * (And use uint8_t instead of led_phase_t because gcc seems to use `int` (int16_t) for enums)
+ */
+static uint8_t led_phase = START_FRAME;
+
 static uint8_t index = 0;
 
 /* Each time a byte finishes transmitting, queue the next one */
@@ -271,16 +274,12 @@ ISR(SPI_STC_vect) {
 
     case DATA_0:
         SPDR = global_brightness;
-        ++led_phase;
+        led_phase = DATA_1;
         break;
 
-    case DATA_1:
-        SPDR = led_buffer.whole[index + 0];
-        ++led_phase;
-        break;
-
+    case DATA_1: // fallthrough
     case DATA_2:
-        SPDR = led_buffer.whole[index + 1];
+        SPDR = led_buffer.whole[index + led_phase - DATA_1];
         ++led_phase;
         break;
 
