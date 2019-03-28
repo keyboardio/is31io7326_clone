@@ -24,8 +24,8 @@ BUILD_PATH := $(abspath ./build)
 SKETCH=attiny_flasher.ino
 
 build:
-     mkdir ${BUILD_PATH}
-     ${ARDUINO_BUILDER} -compile \
+	mkdir ${BUILD_PATH}
+	${ARDUINO_BUILDER} -compile \
           -verbose \
           -hardware "${ARDUINO_PATH}/hardware" \
           -hardware "${BOARD_HARDWARE_PATH}" \
@@ -39,11 +39,10 @@ build:
           -warnings all \
           -prefs "compiler.cpp.extra_flags=-std=c++11 -Woverloaded-virtual -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-qualifiers" \
           ${SKETCH}
-     cp ${BUILD_PATH}/${SKETCH}.hex .
+	cp ${BUILD_PATH}/${SKETCH}.hex .
 
 
 flash: build
-     stty ${STTY_F_OPT} ${DEVICE_PORT} 1200 hupcl
-     sleep 2
-     avrdude -p${MCU} -cavr109 -D -P ${DEVICE_PORT} -b57600 "-Uflash:w:${SKETCH}.hex:i"
-
+	stty ${STTY_F_OPT} ${DEVICE_PORT} 1200 hupcl
+	sleep 2
+	avrdude -p${MCU} -cavr109 -D -P ${DEVICE_PORT} -b57600 "-Uflash:w:${SKETCH}.hex:i"
