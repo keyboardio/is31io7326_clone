@@ -1,0 +1,10 @@
+14:58 <[DMA]> I would think, since you don't need to care that much about EMI, 0111 for keydown and 10000000 for key up with 
+              2kHz scanning will get what you want.
+14:59 <[DMA]> 1.5ms activation delay in good cases, 4ms release delay
+14:59 <[DMA]> One very important specific there is to only detect key releases when key is logically pressed.
+15:00 <[DMA]> but that only matters when you transfer scancodes, not matrix state
+15:00 <[DMA]> I had problem of spammy release scancodes :)
+15:01 <[DMA]> 2kHz scanning is needed to detect EMI in less than 1ms
+15:03 <[DMA]> a good source of EMI is a lamp dimmer, btw.
+15:03 <[DMA]> and cheap! :)
+
