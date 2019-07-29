@@ -1,13 +1,6 @@
-# WARNING
+# Keyboardio Keyscanner firmware
 
-This is an experimental branch. You probably don't want to be using it
-unless you like broken things.
-
-
-
-
-# is31io7326_clone
-Functional clone of the IS31IO7326 using an ATtiny48.
+Firmware for an ATTiny88 to act as a keymatrix scanner and LED driver.
 
 Key reporting and rollover detection are tested and working, all options in the configuration register are saved but do not yet influence behaviour.
 
