@@ -36,6 +36,8 @@ doc/*.pdf
 
 # Built files
 out/*
+distributions/*
+
 
 # Local settings for make
 Makefile.local
