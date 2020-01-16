@@ -53,7 +53,7 @@ user_lines = user_lines[:-1]
 
 boot_lines = boot_hex.strip().split()
 if boot_lines[-1] != ':00000001FF':
-    exit("Invalid user firmware")
+    exit("Invalid bootloader firmware")
 boot_lines = boot_lines[:-1]
 
 user_lines = [parse_line(l) for l in user_lines]
