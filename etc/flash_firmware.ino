@@ -4,7 +4,7 @@ extern "C" {
 #include <twi.h>
 };
 
-#include "attiny_flasher.h"
+#include "attiny88_flasher.h"
 
 #define ELEMENTS(arr)  (sizeof(arr) / sizeof((arr)[0]))
 

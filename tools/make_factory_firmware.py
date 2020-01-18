@@ -2,12 +2,13 @@
 
 import os
 import os.path
+import sys
 from collections import namedtuple
 
 Line = namedtuple('Line', ['size', 'offset', 'kind', 'data', 'checksum'])
 
 USER_FIRMWARE = 'firmware/main.hex'
-BOOTLOADER_FIRMWARE = 'etc/bootloader.hex'
+BOOTLOADER_FIRMWARE = 'firmware/bootloader.hex'
 
 def parse_line(line):
     """Parses an Intel HEX line into a Line tuple"""
@@ -111,6 +112,5 @@ new_lines = [
     Line(size='\0', offset='\0\0', kind='\x01', data='', checksum='\xFF'),
 ]
 
-with open('out/attiny88_factory.hex', 'w') as fout:
-  fout.write(make_hex(user_lines + boot_lines + new_lines))
-  fout.write('\n')
+sys.stdout.write(make_hex(user_lines + boot_lines + new_lines))
+sys.stdout.write('\n')

@@ -64,6 +64,9 @@ COMPILE = $(GCC_PATH) -Wall -Wextra $(OPTIMIZATION) -std=gnu11 -flto -mmcu=$(DEV
 
 # symbolic targets:
 all:	$(HEX_FILE_PATH)
+	@echo "###"
+	@echo "### Built firmware for $(PRODUCT_ID)"
+	@echo "###"
 
 .c.o:
 	$(COMPILE) -c $< -o $@

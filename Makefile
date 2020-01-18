@@ -16,7 +16,12 @@ default: all
 #                   default_serial = "usb";
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
+
+PRODUCT_ID ?= keyboardio-model-100
+
 DEVICE     ?= attiny88
+
+OUTPUT_DIR ?= $(PRODUCT_ID)-flash-$(DEVICE)
 
 # 8Mhz
 CLOCK      ?= 8000000
@@ -32,7 +37,7 @@ PROGRAMMER ?= -c usbtiny
 AVRDUDE = $(AVRDUDE_PATH) $(PROGRAMMER) -p $(DEVICE) -v
 
 flash:	all
-	$(AVRDUDE) -B 2 -U flash:w:out/attiny88_factory.hex:i
+	$(AVRDUDE) -B 2 -U flash:w:out/$(OUTPUT_DIR)/$(DEVICE)_factory.hex:i
 
 fuse:
 	$(AVRDUDE) -B 100 $(FUSES)
@@ -47,18 +52,20 @@ clean:
 all: build flashing-tool
 
 build:
-	make -C firmware
-	mkdir -p out
-	cp firmware/main.hex out/attiny88_keyscanner.hex
-	./tools/make_factory_firmware.py
+	make -C firmware PRODUCT_ID=$(PRODUCT_ID)
+	mkdir -p out/$(OUTPUT_DIR)
+	cp firmware/main.hex out/$(OUTPUT_DIR)/$(DEVICE)_keyscanner.hex
+	cp etc/bootloaders/$(PRODUCT_ID).hex firmware/bootloader.hex
+	./tools/make_factory_firmware.py > out/$(OUTPUT_DIR)/$(DEVICE)_factory.hex
+	cp etc/bootloaders/$(PRODUCT_ID).hex out/$(OUTPUT_DIR)/$(DEVICE)_bootloader.hex
 
 flashing-tool: build
-	mkdir -p out/attiny_flasher
-	cp etc/flasher_Makefile out/attiny_flasher/Makefile
-	cp etc/flash_firmware.ino out/attiny_flasher/attiny_flasher.ino
-	python2.7 ./tools/hex_to_atmega.py out/attiny88_keyscanner.hex > out/attiny_flasher/attiny_flasher.h
+	mkdir -p out/$(OUTPUT_DIR)/$(DEVICE)_flasher
+	cp etc/flasher_Makefile out/$(OUTPUT_DIR)/$(DEVICE)_flasher/Makefile
+	cp etc/flash_firmware.ino out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.ino
+	python2.7 ./tools/hex_to_atmega.py out/$(OUTPUT_DIR)/$(DEVICE)_keyscanner.hex > out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.h
 	mkdir -p out/dist
-	cd out && tar czvf dist/attiny_flasher-`git describe`.tar.gz attiny_flasher
+	cd out && tar czvf dist/$(DEVICE)_firmware-`git describe`.tar.gz $(OUTPUT_DIR)
 
 
 .PHONY: default all clean install flash fuse
