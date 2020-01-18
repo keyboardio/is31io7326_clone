@@ -1,3 +1,5 @@
+#ifdef LED_DRIVER_APA102C
+
 #include <stdint.h>
 #include <avr/io.h>
 
@@ -299,3 +301,6 @@ ISR(SPI_STC_vect) {
         break;
     }
 }
+
+
+#endif

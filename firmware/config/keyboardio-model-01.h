@@ -12,6 +12,7 @@
 
 #define PRODUCT_ID keyboardio-model-01
 
+#define LED_DRIVER_APA102C
 
 // KEY_REPORT_SIZE_BYTES is the number of bytes of data in a key report we send to the host
 #define KEY_REPORT_SIZE_BYTES 4
