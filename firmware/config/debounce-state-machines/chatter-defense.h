@@ -112,7 +112,7 @@ lifecycle_phase_t lifecycle[] = {
         .expected_data = 0,
         .unexpected_data_phase = NOISY_SWITCH_TURNING_ON,
         .change_output_on_expected_transition = 0,
-        .timer =1 
+        .timer =1
     },
     {
         // NOISY_SWITCH_TURNING_ON-- during this phase, we believe that we've detected
@@ -183,7 +183,7 @@ lifecycle_phase_t lifecycle[] = {
         .expected_data = 0,
         .unexpected_data_phase =  NOISY_SWITCH_LOCKED_OFF,
         .change_output_on_expected_transition = CHANGE_OUTPUT,
-        .timer = 1 
+        .timer = 1
     }
 };
 

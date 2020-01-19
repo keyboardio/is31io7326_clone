@@ -84,7 +84,7 @@ void led_update_bank(uint8_t *buf, const uint8_t bank) {
     // Only do our update if we're updating bank 4
     // this way we avoid 3 wasted LED updates
     //if (bank == NUM_LED_BANKS-1) {
-        led_data_ready();
+    led_data_ready();
     // }
 }
 
@@ -251,7 +251,7 @@ typedef enum {
 /* (No volatile because never touch outside of the interrupt) */
 
 // We don't use the led_phase_t type because GCC interprets that as a 16 bit int
-// which results in heavier code 
+// which results in heavier code
 static uint8_t led_phase = START_FRAME;
 
 static uint8_t index = 0; /* next byte to transmit */

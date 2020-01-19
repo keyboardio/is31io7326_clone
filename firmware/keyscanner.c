@@ -51,11 +51,11 @@ void keyscanner_main(void) {
         pin_data = PIN_INPUT;
 
         // Toggle the output we just read back off
- 	HIGH(PORT_OUTPUT, output_pin);
-        
-	// Toggle the output for the 'next' pin
-	// We do this here to give the pin time to settle
-	
+        HIGH(PORT_OUTPUT, output_pin);
+
+        // Toggle the output for the 'next' pin
+        // We do this here to give the pin time to settle
+
         LOW(PORT_OUTPUT, ((output_pin+1) % COUNT_OUTPUT));
 
         // Debounce key state
@@ -65,7 +65,7 @@ void keyscanner_main(void) {
 
     // Most of the time there will be no new key events
     if (__builtin_expect(debounced_changes != 0, EXPECT_FALSE)) {
-	keyscanner_record_state();
+        keyscanner_record_state();
     }
 }
 

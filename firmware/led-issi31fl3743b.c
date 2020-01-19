@@ -23,34 +23,26 @@
  * shouldn't matter.
  */
 
-/*
-1
-2
-3 6
-4 5
-*/
-
-
 /* Model 01 left led ordering
-3 4 11 12 19   20
-2 5 10 13 18   21 26
-1 6 9  14 17   22 25
-0 7 8  15 16   23  24
-  		27, 28, 29, 30
-			31
+3 4 11 12 19 20
+2 5 10 13 18 21 26
+1 6 9  14 17 22 25
+0 7 8  15 16 23 24
+  	27 28 29 30
+		 31
 */
 
 /* Model 100 left led ordering
-1 7  13 19 25  31
-2 8  14 20 26  32  35
-3 9  15 21 27  33  29
-4 10 16 22 28  36  23
-		6 12 18 24
-			30
+1 7  13 19 25 31
+2 8  14 20 26 32 35
+3 9  15 21 27 33 29
+4 10 16 22 28 36 23
+	6 12 18 24
+		30
 */
 
 
-/* model 01 right hand 
+/* model 01 right hand
   11 12 19 20 27 28
 5 10 13 18 21 26 29
 6 9  14 17 22 25 30
@@ -60,11 +52,11 @@
 */
 /* model 100 right hand led ordering
 
-    31 25 19 13 7 1
-35  32 26 20 14 8 2
-29  33 27 21 15 9 3
-23  36 28 22 16 10 4
-24 18 12 6 
+   31 25 19 13 7 1
+35 32 26 20 14 8 2
+29 33 27 21 15 9 3
+23 36 28 22 16 10 4
+24 18 12 6
 	30
 
 */
@@ -76,21 +68,22 @@
 // every led transmit
 #define NO_LED 0
 static const uint8_t led_map_left[37] = {
-    0, 3,2,1,27,NO_LED,0,    
-    4,5,6,28, NO_LED, 7,
-    11,10,9,29, NO_LED, 8, 
-    12,13,14,30,24, 15, 
-    19, 18, 17, 31, 25, 16, 
-   20, 21, 22, NO_LED, 26, 23
+    0,	3,	2,	1,	27,	NO_LED,	 0,
+    4,	5,	6,	28,	NO_LED,	 7,
+    11,	10,	9,	29,	NO_LED,	 8,
+    12,	13,	14,	30,	24,	 15,
+    19,	18,	17,	31,	25,	 16,
+    20,	21,	22,	NO_LED,	26,	 23
 };
 
-static const uint8_t led_map_right[37] = { 
-    0, 28,29,30,4,NO_LED,31,
-       27,26,25,3,NO_LED,24,
-       20,21,22,2,NO_LED,23,
-       19,18,17,1,7,16,
-       12,13,14,0,6,15,
-       11,10,9,NO_LED,5,8};
+static const uint8_t led_map_right[37] = {
+    0,   28,	29,	30,	4,	NO_LED,	31,
+    27,	26,	25,	3,	NO_LED,	24,
+    20,	21,	22,	2,	NO_LED,	23,
+    19,	18,	17,	1,	7,	16,
+    12,	13,	14,	0,	6,	15,
+    11,	10,	9,	NO_LED,	5,	8
+};
 
 
 uint8_t const *led_map;
@@ -342,10 +335,10 @@ static void led_turn_all_off_synchronous() {
 void led_init() {
 
     if (AD01()) {
-	led_map = led_map_right;
-	} else {
-	led_map = led_map_left;
-	}
+        led_map = led_map_right;
+    } else {
+        led_map = led_map_left;
+    }
 
     /* Set MOSI, SCK, SS all to outputs */
     DDRB = _BV(5)|_BV(3)|_BV(2)|_BV(7);
