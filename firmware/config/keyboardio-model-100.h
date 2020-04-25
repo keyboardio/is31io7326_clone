@@ -39,6 +39,7 @@
 #define PIN_ROWS PINC
 #define MASK_ROWS  (_BV(0)|_BV(1)|_BV(2)|_BV(3))
 #define COUNT_ROWS 4
+#define PIN_ORDER_ROWS 0,1,2,3
 
 // COLS
 #define PORT_COLS PORTD

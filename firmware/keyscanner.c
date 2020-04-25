@@ -10,6 +10,9 @@
 
 debounce_t db[COUNT_OUTPUT];
 
+uint8_t output_pin_map[COUNT_OUTPUT] = {PIN_ORDER_OUTPUT};
+
+
 // do_scan gets set any time we should actually do a scan
 volatile uint8_t do_scan = 1;
 
@@ -51,12 +54,12 @@ void keyscanner_main(void) {
         pin_data = PIN_INPUT;
 
         // Toggle the output we just read back off
-        HIGH(PORT_OUTPUT, output_pin);
+        HIGH(PORT_OUTPUT, output_pin_map[output_pin]);
 
         // Toggle the output for the 'next' pin
         // We do this here to give the pin time to settle
 
-        LOW(PORT_OUTPUT, ((output_pin+1) % COUNT_OUTPUT));
+        LOW(PORT_OUTPUT, output_pin_map[((output_pin+1) % COUNT_OUTPUT)]);
 
         // Debounce key state
         debounced_changes |= debounce(KEYSCANNER_CANONICALIZE_PINS(pin_data), db + output_pin);

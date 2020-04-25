@@ -10,9 +10,12 @@
  */
 
 
-#define PRODUCT_ID keyboardio-model-01
+#define PRODUCT_ID keyboardio-model-101
 
-#define LED_DRIVER_APA102C
+// Define the LED driver class we're using
+//#define LED_DRIVER_ISSI31FL3743B
+
+#define LED_DRIVER_WS2812B
 
 // KEY_REPORT_SIZE_BYTES is the number of bytes of data in a key report we send to the host
 #define KEY_REPORT_SIZE_BYTES 4
@@ -38,7 +41,8 @@
 #define PIN_ROWS PINC
 #define MASK_ROWS  (_BV(0)|_BV(1)|_BV(2)|_BV(3))
 #define COUNT_ROWS 4
-#define PIN_ORDER_ROWS 0,1,2,3
+#define PIN_ORDER_ROWS 3,2,1,0
+
 
 
 // COLS

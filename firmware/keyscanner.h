@@ -7,6 +7,8 @@
 #define PIN_OUTPUT PIN_ROWS
 #define MASK_OUTPUT MASK_ROWS
 #define COUNT_OUTPUT COUNT_ROWS
+#define PIN_ORDER_OUTPUT PIN_ORDER_ROWS
+
 
 //Scanning port (cols)
 #define PORT_INPUT PORT_COLS
