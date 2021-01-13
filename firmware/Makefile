@@ -35,7 +35,7 @@ CLOCK      ?= 8000000
 # PROGRAMMER = -c dragon_isp -P usb
 
 # Add more objects for each .c file here
-OBJECTS    = main.o twi-slave.o ringbuf.o wire-protocol.o keyscanner.o led-apa102c.o led-issi31fl3743b.o led-ws2812b.o
+OBJECTS    = main.o twi-slave.o ringbuf.o wire-protocol.o keyscanner.o led-apa102c.o led-issi31fl3743b.o led-ws2812b.o led-null.o
 
 
 # Output files
