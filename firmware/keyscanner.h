@@ -37,9 +37,6 @@
 #define KEYSCANNER_CANONICALIZE_PINS(pins) ~pins
 
 
-// AD01: lower two bits of device address
-#define AD01() ((PINB & _BV(0)) |( PINB & _BV(1)))
-
 void keyscanner_init(void);
 void keyscanner_main(void);
 void keyscanner_record_state(void);
