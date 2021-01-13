@@ -6,7 +6,7 @@
 #include <string.h>
 #include <util/delay.h>
 #include "main.h"
-#include "led-spiout.h"
+#include "led-api.h"
 #include "wire-protocol.h"
 
 

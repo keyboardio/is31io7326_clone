@@ -1,6 +1,6 @@
 #include "wire-protocol.h"
 #include "keyscanner.h"
-#include "led-spiout.h"
+#include "led-api.h"
 
 static inline void setup(void) {
     led_init();
