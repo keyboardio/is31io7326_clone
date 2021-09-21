@@ -8,7 +8,7 @@
 #include "ringbuf.h"
 #include "keyscanner.h"
 
-debounce_t db[COUNT_OUTPUT];
+debounce_t db[KEY_REPORT_SIZE_BYTES];
 
 uint8_t output_pin_map[COUNT_OUTPUT] = {PIN_ORDER_OUTPUT};
 
@@ -31,7 +31,7 @@ void keyscanner_init(void) {
     CONFIGURE_INPUT_PINS;
 
     // Initialize our debouncer datastructure.
-    memset(db, 0, sizeof(*db) * COUNT_OUTPUT);
+    memset(db, 0, sizeof(*db) * KEY_REPORT_SIZE_BYTES);
 
     keyscanner_timer1_init();
 }
@@ -40,6 +40,10 @@ void keyscanner_init(void) {
 void keyscanner_main(void) {
     uint8_t debounced_changes = 0;
     uint8_t pin_data;
+
+#ifdef HAVE_SECOND_INPUT_BANK
+    uint8_t pin_data_2;
+#endif
 
     if (__builtin_expect(do_scan == 0, EXPECT_TRUE)) {
         return;
@@ -52,6 +56,9 @@ void keyscanner_main(void) {
 
         // Read pin data
         pin_data = PIN_INPUT;
+#ifdef HAVE_SECOND_INPUT_BANK
+	pin_data_2 = PIN_INPUT_2; 
+#endif
 
         // Toggle the output we just read back off
         HIGH(PORT_OUTPUT, output_pin_map[output_pin]);
@@ -61,9 +68,14 @@ void keyscanner_main(void) {
 
         LOW(PORT_OUTPUT, output_pin_map[((output_pin+1) % COUNT_OUTPUT)]);
 
-        // Debounce key state
+        // Debounce and store key state 
+#ifdef HAVE_SECOND_INPUT_BANK
+	// With two input banks we want to interleave the pin data
+        debounced_changes |= debounce(KEYSCANNER_CANONICALIZE_PINS(pin_data), db + (2 * output_pin));
+        debounced_changes |= debounce(KEYSCANNER_CANONICALIZE_PINS(pin_data_2), db + ((2 * output_pin)+1));
+#else
         debounced_changes |= debounce(KEYSCANNER_CANONICALIZE_PINS(pin_data), db + output_pin);
-
+#endif
     }
 
     // Most of the time there will be no new key events

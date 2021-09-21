@@ -17,19 +17,39 @@
 #define MASK_INPUT MASK_COLS
 #define COUNT_INPUT COUNT_COLS
 
+#ifdef PORT_COLS_2
+#define HAVE_SECOND_INPUT_BANK
 
+#define PORT_INPUT_2 PORT_COLS_2
+#define DDR_INPUT_2 DDR_COLS_2
+#define PIN_INPUT_2 PIN_COLS_2
+#define MASK_INPUT_2 MASK_COLS_2
+
+#endif
+
+// Set the data direction for our inputs to be "input"
+// Turn on the pullups on the inputs
+#ifdef HAVE_SECOND_INPUT_BANK
+
+#define CONFIGURE_INPUT_PINS \
+    PINS_LOW(DDR_INPUT, MASK_INPUT); \
+    PINS_HIGH(PORT_INPUT, MASK_INPUT); \
+    PINS_LOW(DDR_INPUT_2, MASK_INPUT_2); \
+    PINS_HIGH(PORT_INPUT_2, MASK_INPUT_2);
+
+#else
+
+#define CONFIGURE_INPUT_PINS \
+    PINS_LOW(DDR_INPUT, MASK_INPUT); \
+    PINS_HIGH(PORT_INPUT, MASK_INPUT);
+
+#endif
 
 // Set data direction as output on the output pins
 // Default to all output pins high
 #define CONFIGURE_OUTPUT_PINS \
     PINS_HIGH(DDR_OUTPUT, MASK_OUTPUT); \
     PINS_HIGH(PORT_OUTPUT, MASK_OUTPUT);
-
-// Set the data direction for our inputs to be "input"
-// Turn on the pullups on the inputs
-#define CONFIGURE_INPUT_PINS \
-    PINS_LOW(DDR_INPUT, MASK_INPUT); \
-    PINS_HIGH(PORT_INPUT, MASK_INPUT);
 
 
 // When a key is pressed the input pin will read LOW
