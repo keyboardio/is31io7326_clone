@@ -410,7 +410,7 @@ enum pixels {
     RED
 };
 
-static uint8_t pixel = BLUE;
+static uint8_t pixel = GREEN;
 static uint8_t index = 1; /* next led data register to to transmit */
 static uint8_t phase = ADDR;
 /* Each time a byte finishes transmitting, queue the next one */
