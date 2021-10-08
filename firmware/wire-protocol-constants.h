@@ -24,11 +24,14 @@
 
 // 512KHZ seems to be the sweet spot in early testing
 // so make it the default
+#ifndef LED_SPI_FREQUENCY_DEFAULT
 #define LED_SPI_FREQUENCY_DEFAULT LED_SPI_FREQUENCY_512KHZ
+#endif
 
 // Only for fast led_init, then set to LED_SPI_FREQUENCY_DEFAULT
-#define LED_SPI_FREQUENCY_FOR_INIT LED_SPI_FREQUENCY_1MHZ
-
+#ifndef LED_SPI_FREQUENCY_FOR_INIT
+#define LED_SPI_FREQUENCY_FOR_INIT LED_SPI_FREQUENCY_4MHZ
+#endif
 
 
 #define TWI_REPLY_NONE 0x00
