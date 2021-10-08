@@ -414,10 +414,9 @@ static uint8_t pixel = GREEN;
 static uint8_t index = 1; /* next led data register to to transmit */
 static uint8_t phase = ADDR;
 /* Each time a byte finishes transmitting, queue the next one */
-ISR(SPI_STC_vect) {
 
 
-
+void issi31fl3743b_send_byte() {
     switch(phase) {
     case ADDR:
         // If we're just starting up the interrupt handler cycle for an update
@@ -470,4 +469,7 @@ ISR(SPI_STC_vect) {
 }
 
 
+ISR(SPI_STC_vect) {
+	issi31fl3743b_send_byte();
+}
 #endif
