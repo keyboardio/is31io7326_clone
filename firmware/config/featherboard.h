@@ -29,6 +29,7 @@
 #define DEBOUNCE_STATE_MACHINE "config/debounce-state-machines/chatter-defense.h"
 //#define DEBOUNCE_STATE_MACHINE "config/debounce-state-machines/simple.h"
 
+#define KEYSCAN_INTERVAL_DEFAULT 14
 
 // Actual hardware configuration
 

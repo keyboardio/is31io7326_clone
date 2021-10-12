@@ -29,7 +29,7 @@
 // KEY_REPORT_SIZE_BYTES is the number of bytes of data in a key report we send to the host
 #define KEY_REPORT_SIZE_BYTES 4
 
-
+#define KEYSCAN_INTERVAL_DEFAULT 14
 // Debouncer config
 
 //#define DEBOUNCER "debounce-integrator.h"
