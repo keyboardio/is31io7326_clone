@@ -116,7 +116,7 @@ uint8_t const *led_map;
 // RGB Pixels
 #define LED_DATA_BYTES LED_DRIVER_PIXEL_REGISTER_COUNT * 3
 
-#define WAIT_SPI_TRANSMIT()     do { while (!(SPSR & _BV(SPIF))) ; } while (0)
+#define WAIT_SPI_TRANSMIT()      while (!(SPSR & _BV(SPIF))) ;
 #define ENABLE_LED_WRITES SPCR |= _BV(SPIE);
 #define DISABLE_LED_WRITES SPCR &= ~_BV(SPIE);
 
