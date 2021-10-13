@@ -436,23 +436,23 @@ void issi31fl3743b_send_byte() {
         // Where there's a "NO_KEY" gap in the matrix, we paste in the value
         // of LED 0. This is a tiny bit wasteful of power in -theory-, but unless
         // we see ghosting, it -should- be fine. It's more efficient than adding more conditionals in the code
-        SPDR =  led_buffer.each[led_map[index]][pixel];
-        pixel++;
+        SPDR =  led_buffer.each[led_map[index]][GREEN];
+	WAIT_SPI_TRANSMIT();	
+        SPDR =  led_buffer.each[led_map[index]][BLUE];
+	WAIT_SPI_TRANSMIT();	
+        SPDR =  led_buffer.each[led_map[index]][RED];
         break;
     }
 
     // We're all done.
     if (phase == VALUE) {
-        if (pixel == 3) {
-            pixel = 0;
-
             if (index == LED_DRIVER_PIXEL_REGISTER_COUNT) {
                 phase = ADDR;
                 index = 1;
             } else {
                 index++;
             }
-        }
+        
     }
     if (phase == ADDR && index == 1 && leds_dirty ==0) {
         // and we get told that there's no new data for the LEDs
