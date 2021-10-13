@@ -143,6 +143,8 @@ typedef union {
 /* (No volatile because all writes are outside the interrupt and in PROTECT_LED_WRITES) */
 static led_buffer_t led_buffer = {.whole={0}};
 
+static led_buffer_t last_led_data_written = {.whole={0}};
+
 
 #define LED_BRIGHTNESS_MAX 0xFF
 static uint8_t global_brightness = LED_BRIGHTNESS_MAX;
@@ -151,10 +153,6 @@ static uint8_t global_brightness = LED_BRIGHTNESS_MAX;
 static uint8_t leds_dirty = 1;
 
 /* This function triggers a led update. */
-void led_data_ready() {
-    leds_dirty = 1;
-    ENABLE_LED_WRITES;
-}
 
 /* Update the transmit buffer with LED_BUFSZ bytes of new data */
 void led_update_bank(uint8_t *buf, const uint8_t bank) {
@@ -416,7 +414,82 @@ static uint8_t phase = ADDR;
 /* Each time a byte finishes transmitting, queue the next one */
 
 
+uint8_t led_output_buffer[(NUM_LEDS*LED_DATA_SIZE) + 2] = {0} ; // That is "all the led data + the write to led page 1 + the addr to start at
+uint8_t led_output_data_size = 0;
+#define LED_OUTPUT_FRONT_MATTER_SIZE 2 // One byte for the LED page. One byted for the register address of the first byte
+void led_data_ready() {
+	uint8_t led_output_first_addr = 0; // It's one indexed, but we unconditionally increment it right away
+	led_output_data_size=LED_OUTPUT_FRONT_MATTER_SIZE; 
+	led_output_buffer[0] = Addr_Write_Page1;
+
+	uint8_t led_output_last_changed_addr = 0;
+
+	for (uint8_t index=0; index <  NUM_LEDS;index++) {
+		for (uint8_t px = GREEN; px <= RED; px++) {
+			if (led_output_data_size ==0) {
+				led_output_first_addr++;
+		  	        if (last_led_data_written.each[led_map[index]][pixel] == led_buffer.each[led_map[index]][pixel])  { continue;}
+			} 
+
+			// Now we know that either the current pixel is different OR  we have had at least one different pixel
+			// So we do have to at least send it to the ISSI chip
+			led_output_buffer[led_output_data_size] = led_buffer.each[led_map[index]][pixel];
+
+			// But if it hasn't changed, we don't want to set the "last changed" address, so we don't write
+			// 32 LEDS if we only change LED #1.
+			// If this pixel is different 
+			if (last_led_data_written.each[led_map[index]][pixel] != led_buffer.each[led_map[index]][pixel])  {
+				// set the last address we might want to write to this one
+				led_output_last_changed_addr = led_output_data_size;
+			}
+
+			led_output_data_size++;
+
+		}
+
+	}
+	led_output_buffer[1] = led_output_first_addr; // Set the write-to address to the first LED pixel that's different;
+	led_output_data_size = led_output_last_changed_addr;
+	if (led_output_data_size == LED_OUTPUT_FRONT_MATTER_SIZE ) { // Didn't find any changes. 
+		return;
+	}
+	else {
+        	// copying the whole buffer may be a little wasteful 
+		// but copying only part of it may be more complicated
+		memcpy(last_led_data_written.whole, led_buffer.whole, LED_BUFSZ);
+    leds_dirty = 1;
+    ENABLE_LED_WRITES;
+        BEGIN_ISSI_SPI_TXN
+		return;
+	}
+
+
+// for every led in led_buffer
+//	for each subpixel
+//	if the current led_output_data_size is 0, 
+//		increment our led driver register offset
+//	if the subpixel matches what we wrote last time
+//		next
+//	else
+//		write the pixel to led_output_buffer
+//		increment our output data size
+
+
+}
+
+uint8_t led_output_byte =0;
 void issi31fl3743b_send_byte() {
+	// We're all done, we've sent the last byte	
+	if (led_output_byte ==  led_output_data_size) {
+	        DISABLE_LED_WRITES
+	        END_ISSI_SPI_TXN
+		led_output_byte=0;
+		} else {
+			SPDR= led_output_buffer[led_output_byte++];
+		}
+			
+}
+void issi31fl3743b_send_byte_orig() {
     switch(phase) {
     case ADDR:
         // If we're just starting up the interrupt handler cycle for an update
