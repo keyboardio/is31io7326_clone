@@ -29,3 +29,5 @@ void led_set_all_off(void);
 
 /* Call this with a value between 0 and 31 to set the LED's global brightness */
 void led_set_global_brightness(uint8_t global_brightness);
+
+void led_data_ready(void);
