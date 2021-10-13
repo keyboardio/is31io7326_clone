@@ -166,12 +166,12 @@ void led_update_bank(uint8_t *buf, const uint8_t bank) {
 
     PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.bank[bank], buf, LED_BANK_SIZE);
-    });
     // Only do our update if we're updating bank 4
     // this way we avoid 3 wasted LED updates
     //if (bank == NUM_LED_BANKS-1) {
     led_data_ready();
     // }
+    });
 }
 
 
@@ -204,16 +204,16 @@ void SPI_WriteByte(uint8_t Dev_Add,uint8_t Reg_Add,uint8_t Reg_Dat) {
 void led_update_all(uint8_t *buf) {
     PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.whole, buf, LED_BUFSZ);
-    });
     led_data_ready();
+    });
 }
 
 
 void led_set_one_to(uint8_t led, uint8_t *buf) {
     PROTECT_LED_WRITES({
         memcpy((uint8_t *)led_buffer.each[led], buf, LED_DATA_SIZE);
-    });
     led_data_ready();
+    });
 
 }
 
@@ -246,8 +246,8 @@ void led_set_all_to( uint8_t *buf) {
         for(int8_t led=31; led>=0; led--) {
             memcpy((uint8_t *)led_buffer.each[led], buf, LED_DATA_SIZE);
         }
-    });
     led_data_ready();
+    });
 
 }
 
