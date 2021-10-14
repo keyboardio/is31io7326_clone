@@ -168,9 +168,9 @@ void led_update_bank(uint8_t *buf, const uint8_t bank) {
         memcpy((uint8_t *)led_buffer.bank[bank], buf, LED_BANK_SIZE);
     // Only do our update if we're updating bank 4
     // this way we avoid 3 wasted LED updates
-    //if (bank == NUM_LED_BANKS-1) {
+    if (bank == NUM_LED_BANKS-1) {
     led_data_ready();
-    // }
+    }
     });
 }
 
