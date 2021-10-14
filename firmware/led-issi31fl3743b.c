@@ -346,7 +346,7 @@ void led_init() {
 
     HIGH(PORTB,7);
 
-    led_set_spi_frequency(LED_SPI_FREQUENCY_4MHZ);
+    led_set_spi_frequency(LED_SPI_FREQUENCY_FOR_INIT);
     led_turn_all_off_synchronous();
 
     led_set_global_brightness(0xff);
@@ -394,6 +394,7 @@ void led_init() {
 
 
 
+    led_set_spi_frequency(LED_SPI_FREQUENCY_DEFAULT);
     ENABLE_LED_WRITES;
 }
 
