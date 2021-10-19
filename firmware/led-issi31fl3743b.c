@@ -447,7 +447,7 @@ void issi31fl3743b_send_byte() {
 
     // We're all done.
     if (phase == VALUE) {
-            if (index == LED_DRIVER_PIXEL_REGISTER_COUNT) {
+            if (index > LED_DRIVER_PIXEL_REGISTER_COUNT) {
                 phase = ADDR;
                 index = 1;
             } else {
