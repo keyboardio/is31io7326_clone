@@ -67,8 +67,9 @@
 // This is a waste of a byte of flash, but I'd rather waste the flash than waste the compute on
 // every led transmit
 #define NO_LED 0
-static const uint8_t led_map_left[37] = {
-    0,	3,	2,	1,	27,	NO_LED,	 0,
+static const uint8_t led_map_left[38] = {
+    NO_LED, NO_LED,
+    3,	2,	1,	27,	NO_LED,	 0,
     4,	5,	6,	28,	NO_LED,	 7,
     11,	10,	9,	29,	NO_LED,	 8,
     12,	13,	14,	30,	24,	 15,
@@ -76,8 +77,9 @@ static const uint8_t led_map_left[37] = {
     20,	21,	22,	NO_LED,	26,	 23
 };
 
-static const uint8_t led_map_right[37] = {
-    0,   28,	29,	30,	4,	NO_LED,	31,
+static const uint8_t led_map_right[38] = {
+    NO_LED, NO_LED,
+    28,	29,	30,	4,	NO_LED,	31,
     27,	26,	25,	3,	NO_LED,	24,
     20,	21,	22,	2,	NO_LED,	23,
     19,	18,	17,	1,	7,	16,
