@@ -4,7 +4,6 @@
 #include <util/delay.h>
 
 static inline void setup(void) {
-	_delay_ms(100);
     led_init();
     keyscanner_init();
     twi_init();
