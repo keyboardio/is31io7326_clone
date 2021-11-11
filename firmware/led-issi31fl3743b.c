@@ -329,7 +329,36 @@ static void led_turn_all_off_synchronous() {
 }
 
 
+static void iterate_leds (){
 
+	for (auto i =0 ; i<=39; i++) {
+    BEGIN_ISSI_SPI_TXN
+    SPDR = Addr_Write_Page1;
+    WAIT_SPI_TRANSMIT();
+    SPDR = 1; // Start at register 1;
+    WAIT_SPI_TRANSMIT();
+    for (uint8_t i = 0; i < LED_DATA_BYTES ; i++) {
+        SPDR = 0;
+        WAIT_SPI_TRANSMIT();
+    }
+    END_ISSI_SPI_TXN
+		
+    BEGIN_ISSI_SPI_TXN
+    SPDR = Addr_Write_Page1;
+    WAIT_SPI_TRANSMIT();
+    SPDR = (i*3)+1; // Start at register 1;
+    WAIT_SPI_TRANSMIT();
+        SPDR = 0xff;
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0xff;
+        WAIT_SPI_TRANSMIT();
+        SPDR = 0x00;
+        WAIT_SPI_TRANSMIT();
+    END_ISSI_SPI_TXN
+
+	_delay_ms(2000);
+	}
+}
 
 
 
