@@ -328,10 +328,14 @@ static void led_turn_all_off_synchronous() {
     END_ISSI_SPI_TXN
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
+
 
 static void iterate_leds (){
 
-	for (auto i =0 ; i<=39; i++) {
+	for (int i =0 ; i<=39; i++) {
     BEGIN_ISSI_SPI_TXN
     SPDR = Addr_Write_Page1;
     WAIT_SPI_TRANSMIT();
@@ -361,6 +365,7 @@ static void iterate_leds (){
 }
 
 
+#pragma GCC diagnostic pop
 
 
 void led_init() {
@@ -442,7 +447,6 @@ enum pixels {
     RED
 };
 
-static uint8_t pixel = GREEN;
 static uint8_t index = 1; /* next led data register to to transmit */
 static uint8_t phase = ADDR;
 /* Each time a byte finishes transmitting, queue the next one */
