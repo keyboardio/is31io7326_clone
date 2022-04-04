@@ -65,7 +65,7 @@ flashing-tool: build
 	cp etc/flash_firmware.ino out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.ino
 	python2.7 ./tools/hex_to_atmega.py out/$(OUTPUT_DIR)/$(DEVICE)_keyscanner.hex > out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.h
 	mkdir -p out/dist
-	cd out && tar czvf dist/$(DEVICE)_firmware-`git describe`.tar.gz $(OUTPUT_DIR)
+	cd out && tar czf dist/$(DEVICE)_firmware-`git describe`.tar.gz $(OUTPUT_DIR)
 
 
 .PHONY: default all clean install flash fuse
