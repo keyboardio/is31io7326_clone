@@ -63,3 +63,7 @@
 
 // AD01: lower two bits of device address
 #define AD01() ((PINB & _BV(0)) |( PINB & _BV(1)))
+
+#if __GNUC__ > 5
+#define EMIT_NOPS
+#endif
