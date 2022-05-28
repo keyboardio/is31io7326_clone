@@ -48,14 +48,12 @@ static void TWI_Start_Transceiver( unsigned char ack ) {
 }
 
 /**
- * Call this function to send (and wait for) a bus stop condition.
+ * Call this function to clear a bus error condition. Do NOT wait.
  * ---------------------------------------------------------------------------------------------- */
 static void TWI_Stop( void ) {
     TWCR = _BV(TWEN)|            // Enable TWI-interface and release TWI pins
            _BV(TWIE)|_BV(TWINT)| // Enable TWI Interupt
            _BV(TWEA)|_BV(TWSTO); // Send ACK after next reception, stop bus
-
-    while(TWCR&_BV(TWSTO));
 }
 
 /**
@@ -127,10 +125,11 @@ ISR(TWI_vect) {
         break;
 
     case TW_SR_STOP: // A STOP condition or repeated START condition has been received while still addressed as Slave
-        TWI_Stop();
+        // Either way, treat it as end of transmission
         if (TWI_Rx_Data_Callback) {
             TWI_Rx_Data_Callback(TWI_buf, TWI_bufPtr);
         }
+        // Release the bus and re-enable reception in un-addressed mode
         TWI_Start_Transceiver(1);
         break;
 
