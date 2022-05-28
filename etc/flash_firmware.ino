@@ -1,7 +1,8 @@
+#include <Kaleidoscope.h>
 #include <util/crc16.h>
 #include "Arduino.h"
 extern "C" {
-#include <twi.h>
+#include <kaleidoscope/device/keyboardio/twi.h>
 };
 
 #include "attiny88_flasher.h"
