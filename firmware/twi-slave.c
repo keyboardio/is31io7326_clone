@@ -125,12 +125,14 @@ ISR(TWI_vect) {
         break;
 
     case TW_SR_STOP: // A STOP condition or repeated START condition has been received while still addressed as Slave
+        // Clear the condition immediately, so we're less likely to miss
+        // a START that immediately follows a STOP, and can still match
+        // our address
+        TWI_Start_Transceiver(1);
         // Either way, treat it as end of transmission
         if (TWI_Rx_Data_Callback) {
             TWI_Rx_Data_Callback(TWI_buf, TWI_bufPtr);
         }
-        // Release the bus and re-enable reception in un-addressed mode
-        TWI_Start_Transceiver(1);
         break;
 
     case TW_SR_DATA_NACK:       // Previously addressed with own SLA+W; data has been received; NOT ACK has been returned
