@@ -36,6 +36,8 @@ PROGRAMMER ?= -c usbtiny
 
 AVRDUDE = $(AVRDUDE_PATH) $(PROGRAMMER) -p $(DEVICE) -v
 
+PYTHON = python3
+
 flash:	all
 	$(AVRDUDE) -B 2 -U flash:w:out/$(OUTPUT_DIR)/$(DEVICE)_factory.hex:i
 
@@ -63,7 +65,7 @@ flashing-tool: build
 	mkdir -p out/$(OUTPUT_DIR)/$(DEVICE)_flasher
 	cp etc/flasher_Makefile out/$(OUTPUT_DIR)/$(DEVICE)_flasher/Makefile
 	cp etc/flash_firmware.ino out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.ino
-	python2.7 ./tools/hex_to_atmega.py out/$(OUTPUT_DIR)/$(DEVICE)_keyscanner.hex > out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.h
+	$(PYTHON) ./tools/hex_to_atmega.py out/$(OUTPUT_DIR)/$(DEVICE)_keyscanner.hex > out/$(OUTPUT_DIR)/$(DEVICE)_flasher/$(DEVICE)_flasher.h
 	mkdir -p out/dist
 	cd out && tar czf dist/$(DEVICE)_firmware-`git describe`.tar.gz $(OUTPUT_DIR)
 
